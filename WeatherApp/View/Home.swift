@@ -11,6 +11,9 @@ import Foundation
 let API_key: String = "5207619dd5a2b9bc4ecc2e7459bf7e7c"
 var DataList = [JSONModel]()
 
+let components = Calendar.current.dateComponents([.hour], from: Date())
+let hour = components.hour ?? 0
+
 struct Home: View {
     
     @State private var City: String = ""
@@ -19,6 +22,8 @@ struct Home: View {
     var from: [String] = ["Ãœ", "Å", "Ä", "Ã‡", "Ä°", "Ã–", "Ã¼", "ÅŸ", "Ã§", "Ä±", "Ã¶", "ÄŸ","Ü", "Ş", "Ğ", "Ç", "İ", "Ö", "ü", "ş", "ç", "ı", "ö", "ğ","%u015F", "%E7", "%FC", "%u0131", "%F6", "%u015E", "%C7", "%DC", "%D6","%u0130", "%u011F", "%u011E"];
     
     var to: [String] = ["U", "S", "G", "C", "I", "O", "u", "s", "c", "i", "o","g","U","S", "G", "C", "I", "O", "u", "s", "c","i", "o", "g","s", "c", "u", "i", "o", "S", "C", "U", "O", "I", "g", "G"];
+    
+    
     
     var body: some View {
         VStack{
@@ -61,10 +66,9 @@ struct Home: View {
                     ForEach(DataList, id: \.id){x in
                         ForEach(x.weather, id: \.id) { y in
                           
-                            Text(y.main)
                             switch y.main  {
                             case "Clear":
-                                Image(systemName: "sun.max.fill")
+                                Image(systemName: (hour<10 || hour > 19)  ? "moon.fill" : "sun.max.fill")
                                     .resizable()
                                     .frame(width: 155, height: 155)
                             case "Rain":
@@ -105,17 +109,56 @@ struct Home: View {
                             .padding(.bottom, 50)
                             .fontWeight(.bold)
                     }
-                    Text("Parçalı Bulutlu")
-                        .font(.system(size: 25))
-                        .fontWeight(.regular)
-                        .padding(.bottom, 35)
+                    
+                    ForEach(DataList, id: \.id){x in
+                        ForEach(x.weather, id: \.id) { y in
+                          
+                            switch y.main  {
+                            case "Clear":
+                                Text("Açık")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            case "Rain":
+                                Text("Yağmurlu")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            case "Snow":
+                                Text("Kar Yağışlı")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            case "Clouds":
+                                Text("Parçalı Bulutlu")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            case "Haze":
+                                Text("Sisli")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            default:
+                                Text("Parçalı Bulutlu")
+                                    .font(.system(size: 25))
+                                    .fontWeight(.regular)
+                                    .padding(.bottom, 35)
+                            }
+                        }
+                    }
+                    
+                    
                     HStack{
                         HStack{
                             Image("wave")
                                 .resizable()
                                 .frame(width: 36, height: 36)
                             VStack{
-                                Text("88%")
+                                ForEach(DataList, id: \.id){x in
+                                    Text("\(x.main.humidity)%")
+                                }
+                                
                                 Text("Nem")
                             }
                         }
@@ -123,8 +166,10 @@ struct Home: View {
                         
                         Image(systemName: "wind")
                         VStack{
-                            Text("0 Km/h \nRüzgar Hızı")
-                                .multilineTextAlignment(.leading)
+                            ForEach(DataList, id: \.id){ x in
+                                Text("\(String(x.wind.speed).subString(from: 0, to: 4)) Km/h \nRüzgar Hızı")
+                                    .multilineTextAlignment(.leading)
+                            }
 
                         }
                     }
